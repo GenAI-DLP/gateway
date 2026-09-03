@@ -1,0 +1,27 @@
+[project]
+name = "dlp-gateway-relay"
+version = "0.1.0"
+requires-python = ">=3.11"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+exclude = ["proto/dlp_pb2.py", "proto/dlp_pb2_grpc.py", "proto/dlp-proto"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]  # pyflakes, pycodestyle, import-sort, pyupgrade, bugbear
+ignore = [
+  "E501",  # line length — black이 처리, ruff는 로직 오류에 집중
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["config", "gateway_format", "grpc_client", "llm_client", "openai_client", "gemini_client", "main"]
+
+[tool.black]
+line-length = 100
+target-version = ["py311"]
+extend-exclude = "proto/dlp_pb2.*\\.py|proto/dlp-proto"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
