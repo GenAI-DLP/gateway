@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>DLP Gateway · Demo 1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@500;600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #F6F4EF;
+    --panel: #16202B;
+    --panel-2: #1E2B3A;
+    --ink: #1C2430;
+    --ink-soft: #57626F;
+    --line: #DAD5C9;
+    --line-strong: #B9C4C6;
+    --accent: #3C6E71;
+    --accent-soft: #E4EDEC;
+    --amber: #A9660E;
+    --amber-soft: #F7ECDA;
+    --brick: #8E2F2F;
+    --brick-soft: #F6E4E1;
+    --paper-user: #FFFFFF;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Inter', -apple-system, sans-serif;
+    display:flex;
+    flex-direction:column;
+  }
+
+  header{
+    background:var(--panel);
+    color:#EDEFE9;
+    padding:14px 22px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:10px;
+    border-bottom:1px solid #0B1119;
+  }
+  .brand{
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+  }
+  .brand .mark{
+    font-family:'Source Serif 4', serif;
+    font-weight:600;
+    font-size:20px;
+    letter-spacing:0.2px;
+  }
+  .brand .sub{
+    color:#9FB0B0;
+    font-size:12.5px;
+  }
+  .identity{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-size:13px;
+  }
+  .identity label{
+    color:#B7C2C2;
+    margin-right:2px;
+  }
+  .identity input, .identity select{
+    background:var(--panel-2);
+    border:1px solid #33465A;
+    color:#EDEFE9;
+    border-radius:4px;
+    padding:6px 8px;
+    font-size:13px;
+    font-family:inherit;
+  }
+  .identity input{width:92px;}
+
+  main{
+    flex:1;
+    max-width:760px;
+    width:100%;
+    margin:0 auto;
+    padding:28px 20px 140px;
+    overflow-y:auto;
+  }
+
+  .intro{
+    border-left:3px solid var(--line-strong);
+    padding:2px 0 2px 16px;
+    margin-bottom:28px;
+    color:var(--ink-soft);
+    font-size:13.5px;
+    line-height:1.6;
+  }
+
+  .turn{
+    margin-bottom:22px;
+  }
+  .turn .role{
+    font-size:11.5px;
+    color:var(--ink-soft);
+    margin-bottom:5px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .turn.user .role::before{content:"사용자";}
+  .turn.assistant .role::before{content:"AI 응답";}
+
+  .bubble{
+    border:1px solid var(--line);
+    background:var(--paper-user);
+    border-radius:3px;
+    padding:12px 14px;
+    font-size:14.5px;
+    line-height:1.65;
+    white-space:pre-wrap;
+  }
+  .turn.assistant .bubble{
+    background:#FBFAF6;
+    border-left:3px solid var(--accent);
+    border-radius:0 3px 3px 0;
+  }
+  .turn.blocked .bubble{
+    background:var(--brick-soft);
+    border-left:3px solid var(--brick);
+    color:#5E1F1F;
+  }
+
+  .badges{
+    margin-top:7px;
+    display:flex;
+    gap:6px;
+    flex-wrap:wrap;
+  }
+  .badge{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10.5px;
+    padding:3px 7px;
+    border-radius:3px;
+    border:1px solid transparent;
+    cursor:default;
+  }
+  .badge.allow{ background:var(--accent-soft); color:var(--accent); border-color:#C6D9D6;}
+  .badge.transform{ background:var(--amber-soft); color:var(--amber); border-color:#E7D2A6;}
+  .badge.block{ background:var(--brick-soft); color:var(--brick); border-color:#E3B9B4;}
+
+  details.reason{
+    margin-top:5px;
+    font-size:11.5px;
+    color:var(--ink-soft);
+  }
+  details.reason summary{cursor:pointer; user-select:none;}
+  details.reason pre{
+    margin:6px 0 0;
+    padding:8px;
+    background:#F1EEE6;
+    border-radius:3px;
+    overflow-x:auto;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+  }
+
+  form#composer{
+    position:fixed;
+    bottom:0; left:0; right:0;
+    background:linear-gradient(180deg, rgba(246,244,239,0) 0%, var(--bg) 40%);
+    padding:22px 20px 24px;
+  }
+  .composer-inner{
+    max-width:760px;
+    margin:0 auto;
+    display:flex;
+    gap:10px;
+    background:#fff;
+    border:1px solid var(--line-strong);
+    border-radius:5px;
+    padding:6px 6px 6px 14px;
+  }
+  #msg{
+    flex:1;
+    border:none;
+    outline:none;
+    font-family:inherit;
+    font-size:14.5px;
+    padding:10px 0;
+    resize:none;
+    max-height:120px;
+  }
+  #send{
+    background:var(--panel);
+    color:#EDEFE9;
+    border:none;
+    border-radius:3px;
+    padding:0 18px;
+    font-family:inherit;
+    font-size:13.5px;
+    font-weight:500;
+    cursor:pointer;
+  }
+  #send:disabled{opacity:0.5; cursor:default;}
+  #send:hover:not(:disabled){background:#212F3F;}
+
+  .pending .bubble{color:var(--ink-soft); font-style:italic;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <span class="mark">DLP Gateway</span>
+    <span class="sub">Demo 1 · 사내 포털 경로</span>
+  </div>
+  <div class="identity">
+    <label for="userId">사번</label>
+    <input id="userId" value="E10234" />
+    <label for="role">역할</label>
+    <select id="role">
+      <option value="agent_l1">1선 상담원</option>
+      <option value="agent_l2">2선 조사역</option>
+      <option value="unknown">미지정</option>
+    </select>
+  </div>
+</header>
+
+<main id="log">
+  <div class="intro">
+    이 챗은 dlp-server를 거쳐 응답합니다. 모든 메시지는 입력 시점과 응답 시점에 각각 검사되며,
+    아래 배지는 실제 서비스라면 관리자 대시보드에서만 보일 판정 결과를 데모용으로 함께 보여줍니다.
+  </div>
+</main>
+
+<form id="composer">
+  <div class="composer-inner">
+    <textarea id="msg" rows="1" placeholder="메시지를 입력하세요..." autofocus></textarea>
+    <button id="send" type="submit">보내기</button>
+  </div>
+</form>
+
+<script>
+const log = document.getElementById('log');
+const form = document.getElementById('composer');
+const msgInput = document.getElementById('msg');
+const sendBtn = document.getElementById('send');
+const userIdInput = document.getElementById('userId');
+const roleSelect = document.getElementById('role');
+
+let sessionId = localStorage.getItem('dlp_demo_session_id');
+if (!sessionId) {
+  sessionId = crypto.randomUUID();
+  localStorage.setItem('dlp_demo_session_id', sessionId);
+}
+
+let history = [];
+
+function actionLabel(action) {
+  if (action === 'allow') return '허용';
+  if (action === 'transform') return '변환';
+  if (action === 'block') return '차단';
+  return action || '?';
+}
+
+function addTurn(role, text, extraClass) {
+  const wrap = document.createElement('div');
+  wrap.className = `turn ${role}${extraClass ? ' ' + extraClass : ''}`;
+  const roleEl = document.createElement('div');
+  roleEl.className = 'role';
+  const bubble = document.createElement('div');
+  bubble.className = 'bubble';
+  bubble.textContent = text;
+  wrap.appendChild(roleEl);
+  wrap.appendChild(bubble);
+  log.appendChild(wrap);
+  log.scrollTop = log.scrollHeight;
+  return wrap;
+}
+
+function addBadges(wrap, label, action, reason) {
+  const badges = document.createElement('div');
+  badges.className = 'badges';
+  const b = document.createElement('span');
+  b.className = `badge ${action}`;
+  b.textContent = `${label} · ${actionLabel(action)}`;
+  badges.appendChild(b);
+  wrap.appendChild(badges);
+
+  if (reason && Object.keys(reason).length) {
+    const det = document.createElement('details');
+    det.className = 'reason';
+    const sum = document.createElement('summary');
+    sum.textContent = '판정 근거 보기';
+    const pre = document.createElement('pre');
+    pre.textContent = JSON.stringify(reason, null, 2);
+    det.appendChild(sum);
+    det.appendChild(pre);
+    wrap.appendChild(det);
+  }
+}
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const message = msgInput.value.trim();
+  if (!message) return;
+
+  addTurn('user', message);
+  msgInput.value = '';
+  sendBtn.disabled = true;
+
+  const pending = addTurn('assistant', '검사 중...', 'pending');
+
+  try {
+    const resp = await fetch('/chat', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        session_id: sessionId,
+        user_id: userIdInput.value || 'anonymous',
+        role: roleSelect.value,
+        message,
+        history,
+      }),
+    });
+
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => ({detail: '알 수 없는 오류'}));
+      pending.remove();
+      const errWrap = addTurn('assistant', err.detail || '요청 처리 중 오류가 발생했습니다.', 'blocked');
+      return;
+    }
+
+    const data = await resp.json();
+    sessionId = data.session_id;
+    localStorage.setItem('dlp_demo_session_id', sessionId);
+
+    pending.remove();
+    const wrap = addTurn('assistant', data.reply, data.blocked ? 'blocked' : '');
+    addBadges(wrap, '입력', data.input_action, data.input_reason);
+    if (data.output_action) {
+      addBadges(wrap, '응답', data.output_action, data.output_reason);
+    }
+
+    if (!data.blocked) {
+      history.push({role: 'user', content: message});
+      history.push({role: 'assistant', content: data.reply});
+    }
+  } catch (err) {
+    pending.remove();
+    addTurn('assistant', '릴레이 서버에 연결할 수 없습니다.', 'blocked');
+  } finally {
+    sendBtn.disabled = false;
+    msgInput.focus();
+  }
+});
+
+msgInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    form.requestSubmit();
+  }
+});
+</script>
+
+</body>
+</html>
