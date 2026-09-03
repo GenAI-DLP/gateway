@@ -5,6 +5,7 @@ dlp-server gRPC 클라이언트.
 Relay는 이 결과(action/transformed_body/reason)를 받아 "그대로 실행"만 한다.
 판정 기준을 재해석하거나 자체 판단을 얹지 않는다.
 """
+
 import json
 from dataclasses import dataclass
 
@@ -16,7 +17,7 @@ from proto import dlp_pb2, dlp_pb2_grpc
 
 @dataclass
 class Verdict:
-    action: str              # allow | block | transform
+    action: str  # allow | block | transform
     transformed_body: bytes
     reason: dict
 

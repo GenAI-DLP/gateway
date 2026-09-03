@@ -5,6 +5,7 @@ provider에 상관없이 그대로 쓸 수 있게 했다.
 
 무료 티어는 요청/일 한도가 낮으니 데모 용도로만 쓸 것.
 """
+
 import httpx
 
 from config import settings
@@ -29,10 +30,12 @@ def _to_gemini_contents(messages: list[dict]) -> tuple[list[dict], str | None]:
         if role == "system":
             system_parts.append(text)
             continue
-        contents.append({
-            "role": "model" if role == "assistant" else "user",
-            "parts": [{"text": text}],
-        })
+        contents.append(
+            {
+                "role": "model" if role == "assistant" else "user",
+                "parts": [{"text": text}],
+            }
+        )
     system_instruction = "\n".join(system_parts) if system_parts else None
     return contents, system_instruction
 
@@ -49,9 +52,7 @@ async def chat_completion(messages: list[dict]) -> str:
     if system_instruction:
         body["system_instruction"] = {"parts": [{"text": system_instruction}]}
 
-    url = (
-        f"{settings.gemini_base_url}/models/{settings.gemini_model}:generateContent"
-    )
+    url = f"{settings.gemini_base_url}/models/{settings.gemini_model}:generateContent"
 
     try:
         async with httpx.AsyncClient(timeout=30.0) as client:
@@ -63,13 +64,13 @@ async def chat_completion(messages: list[dict]) -> str:
                 },
                 json=body,
             )
-            
+
     except httpx.TimeoutException as e:
         raise GeminiError(
             "Gemini API 응답이 30초 안에 오지 않았습니다. 사내 네트워크/방화벽이 "
             "generativelanguage.googleapis.com 접속을 막고 있는지 확인해주세요."
         ) from e
-    
+
     except httpx.RequestError as e:
         raise GeminiError(f"Gemini API 연결 실패: {e}") from e
 

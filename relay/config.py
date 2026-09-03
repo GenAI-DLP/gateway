@@ -5,6 +5,7 @@ Gateway 릴레이는 로직이 거의 없는 얇은 컴포넌트다 (DLP_Server_
 여기 있는 값들은 전부 "누구에게 어떻게 연결할지"에 대한 설정이지,
 판정/탐지/변환 로직이 아니다 — 그건 dlp-server의 몫이다.
 """
+
 import os
 from dataclasses import dataclass
 
@@ -28,7 +29,7 @@ class Settings:
     # openai_api_key: str = os.getenv("OPENAI_API_KEY", "")
     # openai_model: str = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
     # openai_base_url: str = os.getenv("OPENAI_BASE_URL", "https://api.openai.com/v1")
-        # "openai" | "gemini" — 실제 LLM 호출 대상 선택
+    # "openai" | "gemini" — 실제 LLM 호출 대상 선택
     llm_provider: str = os.getenv("LLM_PROVIDER", "gemini")
 
     openai_api_key: str = os.getenv("OPENAI_API_KEY", "")
