@@ -25,5 +25,7 @@ def test_assistant_role_mapped_to_model():
 
 
 def test_no_system_message_returns_none():
-    contents, system_instruction = _to_gemini_contents([{"role": "user", "content": "hi"}])
+    contents, system_instruction = _to_gemini_contents(
+        [{"role": "user", "content": "hi"}]
+    )
     assert system_instruction is None
