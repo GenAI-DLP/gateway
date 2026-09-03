@@ -14,9 +14,7 @@ class OpenAIError(RuntimeError):
 
 async def chat_completion(messages: list[dict]) -> str:
     if not settings.openai_api_key:
-        raise OpenAIError(
-            "OPENAI_API_KEY가 설정되지 않았습니다. relay/.env에 값을 넣어주세요."
-        )
+        raise OpenAIError("OPENAI_API_KEY가 설정되지 않았습니다. relay/.env에 값을 넣어주세요.")
 
     async with httpx.AsyncClient(timeout=30.0) as client:
         resp = await client.post(
