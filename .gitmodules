@@ -1,0 +1,3 @@
+[submodule "relay/proto/dlp-proto"]
+	path = relay/proto/dlp-proto
+	url = https://github.com/GenAI-DLP/dlp-proto.git
