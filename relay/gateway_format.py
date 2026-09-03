@@ -4,6 +4,7 @@
 adapters/gateway.py (dlp-server 측)가 파싱하는 그 포맷을 그대로 만든다.
 Relay는 이 포맷을 "만들기만" 한다 — 안의 내용을 검사/변형하지 않는다.
 """
+
 import json
 
 

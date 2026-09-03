@@ -1,0 +1,44 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+build/
+dist/
+
+# --- 가상환경 ---
+.venv/
+venv/
+env/
+
+# --- 환경변수 / 시크릿 ---
+.env
+.env.*
+!.env.example
+
+# --- gRPC 생성 코드 (proto가 SSOT, 생성물은 커밋 안 함) ---
+proto/generated/
+relay/proto/dlp_pb2.py
+relay/proto/dlp_pb2_grpc.py
+relay/proto/dlp_pb2.pyi
+*_pb2.py
+*_pb2_grpc.py
+
+# --- 로그 ---
+*.log
+mock.log
+
+# --- IDE / 에디터 ---
+.vscode/
+.idea/
+*.swp
+
+# --- OS ---
+.DS_Store
+Thumbs.db
+
+# --- 테스트/커버리지 ---
+.pytest_cache/
+.coverage
+htmlcov/
