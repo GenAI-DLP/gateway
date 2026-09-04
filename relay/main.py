@@ -51,7 +51,7 @@ def _corp_headers(user_id: str, role: str) -> dict:
     이 데모에는 SSO가 없으므로 UI에서 받은 값을 그대로 헤더로 옮긴다 —
     "헤더 주입"이라는 Relay의 역할 자체는 동일하게 재현한다.
     """
-    return {"X-Corp-User-Id": user_id, "X-Corp-Role": role}
+    return {"X-Corp-User-Id": user_id, "X-Corp-User-Role": role}
 
 
 @app.get("/health")
