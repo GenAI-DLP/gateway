@@ -20,7 +20,7 @@ from dataclasses import dataclass
 
 from config import settings
 from dlp_proxy_transport import DlpProxyTransportError, request_via_dlp_proxy
-from gemini_format import build_gemini_request_body, extract_gemini_text
+from gemini_format import build_gemini_request_body, extract_gemini_text, friendly_gemini_error
 
 
 @dataclass
@@ -85,7 +85,7 @@ async def chat_via_dlp_proxy(messages: list[dict], headers: dict[str, str]) -> P
 
     if resp.status != 200:
         raise ProxiedChatError(
-            f"업스트림 오류 ({resp.status}): {resp.body.decode('utf-8', errors='replace')[:300]}",
+            friendly_gemini_error(resp.status, resp.body),
             input_action=input_action,
             output_action=output_action,
         )

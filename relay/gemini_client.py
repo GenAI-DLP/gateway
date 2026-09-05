@@ -9,7 +9,7 @@ provider에 상관없이 그대로 쓸 수 있게 했다.
 import httpx
 
 from config import settings
-from gemini_format import extract_gemini_text, to_gemini_contents
+from gemini_format import extract_gemini_text, friendly_gemini_error, to_gemini_contents
 
 # 기존 테스트(tests/test_gemini_client.py)가 이 이름으로 직접 임포트하므로 별칭 유지.
 _to_gemini_contents = to_gemini_contents
@@ -52,7 +52,7 @@ async def chat_completion(messages: list[dict]) -> str:
         raise GeminiError(f"Gemini API 연결 실패: {e}") from e
 
     if resp.status_code != 200:
-        raise GeminiError(f"Gemini 호출 실패 ({resp.status_code}): {resp.text[:300]}")
+        raise GeminiError(friendly_gemini_error(resp.status_code, resp.content))
 
     data = resp.json()
     text = extract_gemini_text(data)
