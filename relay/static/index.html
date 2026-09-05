@@ -4,61 +4,58 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>DLP Gateway · Demo 1</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@500;600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" as="style" crossorigin
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.css" />
 <style>
   :root{
-    --bg: #F6F4EF;
-    --panel: #16202B;
-    --panel-2: #1E2B3A;
-    --ink: #1C2430;
-    --ink-soft: #57626F;
-    --line: #DAD5C9;
-    --line-strong: #B9C4C6;
-    --accent: #3C6E71;
-    --accent-soft: #E4EDEC;
-    --amber: #A9660E;
-    --amber-soft: #F7ECDA;
-    --brick: #8E2F2F;
-    --brick-soft: #F6E4E1;
-    --paper-user: #FFFFFF;
+    --bg: #ffffff;
+    --bg-input: #f7f7f8;
+    --text: #0d0d0d;
+    --text-muted: #6e6e80;
+    --border: #e6e6e6;
+    --user-bubble: #f0f0f1;
+    --accent: #3c6e71;
+    --accent-soft: #e4edec;
+    --amber: #a9660e;
+    --amber-soft: #f7ecda;
+    --brick: #b3403f;
+    --brick-soft: #fbebea;
   }
   *{box-sizing:border-box;}
   html,body{height:100%;}
   body{
     margin:0;
     background:var(--bg);
-    color:var(--ink);
-    font-family:'Inter', -apple-system, sans-serif;
+    color:var(--text);
+    font-family:'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size:15px;
+    line-height:1.65;
     display:flex;
     flex-direction:column;
+    -webkit-font-smoothing:antialiased;
   }
 
   header{
-    background:var(--panel);
-    color:#EDEFE9;
-    padding:14px 22px;
+    padding:14px 24px;
     display:flex;
     align-items:center;
     justify-content:space-between;
     flex-wrap:wrap;
     gap:10px;
-    border-bottom:1px solid #0B1119;
+    border-bottom:1px solid var(--border);
   }
   .brand{
     display:flex;
     align-items:baseline;
-    gap:10px;
+    gap:9px;
   }
   .brand .mark{
-    font-family:'Source Serif 4', serif;
     font-weight:600;
-    font-size:20px;
-    letter-spacing:0.2px;
+    font-size:15px;
+    letter-spacing:-0.01em;
   }
   .brand .sub{
-    color:#9FB0B0;
+    color:var(--text-muted);
     font-size:12.5px;
   }
   .identity{
@@ -68,147 +65,169 @@
     font-size:13px;
   }
   .identity label{
-    color:#B7C2C2;
-    margin-right:2px;
+    color:var(--text-muted);
   }
   .identity input, .identity select{
-    background:var(--panel-2);
-    border:1px solid #33465A;
-    color:#EDEFE9;
-    border-radius:4px;
-    padding:6px 8px;
+    background:var(--bg-input);
+    border:1px solid var(--border);
+    color:var(--text);
+    border-radius:8px;
+    padding:6px 10px;
     font-size:13px;
     font-family:inherit;
   }
-  .identity input{width:92px;}
+  .identity input{width:88px;}
 
   main{
     flex:1;
-    max-width:760px;
     width:100%;
-    margin:0 auto;
-    padding:28px 20px 140px;
     overflow-y:auto;
+  }
+  #log-inner{
+    max-width:720px;
+    margin:0 auto;
+    padding:32px 20px 160px;
   }
 
   .intro{
-    border-left:3px solid var(--line-strong);
-    padding:2px 0 2px 16px;
-    margin-bottom:28px;
-    color:var(--ink-soft);
+    color:var(--text-muted);
     font-size:13.5px;
     line-height:1.6;
+    margin-bottom:32px;
+    padding-bottom:20px;
+    border-bottom:1px solid var(--border);
   }
 
   .turn{
-    margin-bottom:22px;
-  }
-  .turn .role{
-    font-size:11.5px;
-    color:var(--ink-soft);
-    margin-bottom:5px;
+    margin-bottom:28px;
     display:flex;
-    align-items:center;
-    gap:8px;
   }
-  .turn.user .role::before{content:"사용자";}
-  .turn.assistant .role::before{content:"AI 응답";}
+  .turn.user{ justify-content:flex-end; }
+  .turn.assistant{ justify-content:flex-start; }
 
   .bubble{
-    border:1px solid var(--line);
-    background:var(--paper-user);
-    border-radius:3px;
-    padding:12px 14px;
-    font-size:14.5px;
-    line-height:1.65;
+    font-size:15px;
     white-space:pre-wrap;
+    word-break:break-word;
+  }
+  .turn.user .bubble{
+    background:var(--user-bubble);
+    border-radius:20px;
+    padding:10px 16px;
+    max-width:75%;
   }
   .turn.assistant .bubble{
-    background:#FBFAF6;
-    border-left:3px solid var(--accent);
-    border-radius:0 3px 3px 0;
+    max-width:100%;
+    padding:2px 0;
   }
   .turn.blocked .bubble{
     background:var(--brick-soft);
-    border-left:3px solid var(--brick);
-    color:#5E1F1F;
+    color:#7a2b2a;
+    border-radius:12px;
+    padding:12px 14px;
+  }
+  .turn.pending .bubble{
+    color:var(--text-muted);
+  }
+
+  .assistant-block{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    max-width:100%;
   }
 
   .badges{
-    margin-top:7px;
     display:flex;
     gap:6px;
     flex-wrap:wrap;
   }
   .badge{
-    font-family:'IBM Plex Mono', monospace;
-    font-size:10.5px;
-    padding:3px 7px;
-    border-radius:3px;
+    font-size:11px;
+    font-weight:500;
+    padding:3px 9px;
+    border-radius:100px;
     border:1px solid transparent;
     cursor:default;
   }
-  .badge.allow{ background:var(--accent-soft); color:var(--accent); border-color:#C6D9D6;}
-  .badge.transform{ background:var(--amber-soft); color:var(--amber); border-color:#E7D2A6;}
-  .badge.block{ background:var(--brick-soft); color:var(--brick); border-color:#E3B9B4;}
+  .badge.allow{ background:var(--accent-soft); color:var(--accent); border-color:#c9dbd9;}
+  .badge.transform{ background:var(--amber-soft); color:var(--amber); border-color:#ecd9b3;}
+  .badge.block{ background:var(--brick-soft); color:var(--brick); border-color:#f0c9c8;}
 
   details.reason{
-    margin-top:5px;
-    font-size:11.5px;
-    color:var(--ink-soft);
+    font-size:12px;
+    color:var(--text-muted);
   }
   details.reason summary{cursor:pointer; user-select:none;}
   details.reason pre{
     margin:6px 0 0;
-    padding:8px;
-    background:#F1EEE6;
-    border-radius:3px;
+    padding:10px 12px;
+    background:var(--bg-input);
+    border-radius:10px;
     overflow-x:auto;
-    font-family:'IBM Plex Mono', monospace;
-    font-size:11px;
+    font-family:'SF Mono', 'Menlo', monospace;
+    font-size:11.5px;
+    line-height:1.5;
   }
 
   form#composer{
     position:fixed;
     bottom:0; left:0; right:0;
-    background:linear-gradient(180deg, rgba(246,244,239,0) 0%, var(--bg) 40%);
-    padding:22px 20px 24px;
+    background:linear-gradient(180deg, rgba(255,255,255,0) 0%, var(--bg) 45%);
+    padding:20px 20px 26px;
   }
   .composer-inner{
-    max-width:760px;
+    max-width:720px;
     margin:0 auto;
     display:flex;
-    gap:10px;
+    align-items:flex-end;
+    gap:8px;
     background:#fff;
-    border:1px solid var(--line-strong);
-    border-radius:5px;
-    padding:6px 6px 6px 14px;
+    border:1px solid var(--border);
+    border-radius:26px;
+    padding:10px 10px 10px 20px;
+    box-shadow:0 2px 10px rgba(0,0,0,0.05);
+    transition:box-shadow 0.15s ease, border-color 0.15s ease;
+  }
+  .composer-inner:focus-within{
+    border-color:#d4d4d4;
+    box-shadow:0 4px 16px rgba(0,0,0,0.08);
   }
   #msg{
     flex:1;
     border:none;
     outline:none;
     font-family:inherit;
-    font-size:14.5px;
-    padding:10px 0;
+    font-size:15px;
+    padding:8px 0;
     resize:none;
-    max-height:120px;
+    max-height:160px;
+    background:transparent;
   }
+  #msg::placeholder{ color:#a8a8ad; }
   #send{
-    background:var(--panel);
-    color:#EDEFE9;
+    flex-shrink:0;
+    width:32px;
+    height:32px;
+    background:var(--accent);
+    color:#fff;
     border:none;
-    border-radius:3px;
-    padding:0 18px;
+    border-radius:50%;
     font-family:inherit;
-    font-size:13.5px;
-    font-weight:500;
+    font-size:0;
     cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transition:background 0.15s ease, opacity 0.15s ease;
   }
-  #send:disabled{opacity:0.5; cursor:default;}
-  #send:hover:not(:disabled){background:#212F3F;}
-
-  .pending .bubble{color:var(--ink-soft); font-style:italic;}
+  #send::after{
+    content:"↑";
+    font-size:16px;
+    font-weight:700;
+  }
+  #send:disabled{opacity:0.35; cursor:default;}
+  #send:hover:not(:disabled){background:#2f5a5c;}
 </style>
 </head>
 <body>
@@ -231,21 +250,24 @@
 </header>
 
 <main id="log">
-  <div class="intro">
-    이 챗은 dlp-server를 거쳐 응답합니다. 모든 메시지는 입력 시점과 응답 시점에 각각 검사되며,
-    아래 배지는 실제 서비스라면 관리자 대시보드에서만 보일 판정 결과를 데모용으로 함께 보여줍니다.
+  <div id="log-inner">
+    <div class="intro">
+      이 챗은 dlp-server를 거쳐 응답합니다. 모든 메시지는 입력 시점과 응답 시점에 각각 검사되며,
+      아래 배지는 실제 서비스라면 관리자 대시보드에서만 보일 판정 결과를 데모용으로 함께 보여줍니다.
+    </div>
   </div>
 </main>
 
 <form id="composer">
   <div class="composer-inner">
-    <textarea id="msg" rows="1" placeholder="메시지를 입력하세요..." autofocus></textarea>
-    <button id="send" type="submit">보내기</button>
+    <textarea id="msg" rows="1" placeholder="메시지를 입력하세요" autofocus></textarea>
+    <button id="send" type="submit" aria-label="보내기"></button>
   </div>
 </form>
 
 <script>
 const log = document.getElementById('log');
+const logInner = document.getElementById('log-inner');
 const form = document.getElementById('composer');
 const msgInput = document.getElementById('msg');
 const sendBtn = document.getElementById('send');
@@ -267,29 +289,41 @@ function actionLabel(action) {
   return action || '?';
 }
 
-function addTurn(role, text, extraClass) {
+function addUserTurn(text) {
   const wrap = document.createElement('div');
-  wrap.className = `turn ${role}${extraClass ? ' ' + extraClass : ''}`;
-  const roleEl = document.createElement('div');
-  roleEl.className = 'role';
+  wrap.className = 'turn user';
   const bubble = document.createElement('div');
   bubble.className = 'bubble';
   bubble.textContent = text;
-  wrap.appendChild(roleEl);
   wrap.appendChild(bubble);
-  log.appendChild(wrap);
+  logInner.appendChild(wrap);
   log.scrollTop = log.scrollHeight;
   return wrap;
 }
 
-function addBadges(wrap, label, action, reason) {
+function addAssistantTurn(text, extraClass) {
+  const wrap = document.createElement('div');
+  wrap.className = `turn assistant${extraClass ? ' ' + extraClass : ''}`;
+  const block = document.createElement('div');
+  block.className = 'assistant-block';
+  const bubble = document.createElement('div');
+  bubble.className = 'bubble';
+  bubble.textContent = text;
+  block.appendChild(bubble);
+  wrap.appendChild(block);
+  logInner.appendChild(wrap);
+  log.scrollTop = log.scrollHeight;
+  return { wrap, block };
+}
+
+function addBadges(block, label, action, reason) {
   const badges = document.createElement('div');
   badges.className = 'badges';
   const b = document.createElement('span');
   b.className = `badge ${action}`;
   b.textContent = `${label} · ${actionLabel(action)}`;
   badges.appendChild(b);
-  wrap.appendChild(badges);
+  block.appendChild(badges);
 
   if (reason && Object.keys(reason).length) {
     const det = document.createElement('details');
@@ -300,8 +334,18 @@ function addBadges(wrap, label, action, reason) {
     pre.textContent = JSON.stringify(reason, null, 2);
     det.appendChild(sum);
     det.appendChild(pre);
-    wrap.appendChild(det);
+    block.appendChild(det);
   }
+}
+
+function addModeNote(block, blocked) {
+  const badges = document.createElement('div');
+  badges.className = 'badges';
+  const b = document.createElement('span');
+  b.className = `badge ${blocked ? 'block' : 'allow'}`;
+  b.textContent = `dlp-proxy 경유 · ${blocked ? '차단됨' : '통과'}`;
+  badges.appendChild(b);
+  block.appendChild(badges);
 }
 
 form.addEventListener('submit', async (e) => {
@@ -309,11 +353,12 @@ form.addEventListener('submit', async (e) => {
   const message = msgInput.value.trim();
   if (!message) return;
 
-  addTurn('user', message);
+  addUserTurn(message);
   msgInput.value = '';
+  msgInput.style.height = 'auto';
   sendBtn.disabled = true;
 
-  const pending = addTurn('assistant', '검사 중...', 'pending');
+  const { wrap: pendingWrap, block: pendingBlock } = addAssistantTurn('검사 중...', 'pending');
 
   try {
     const resp = await fetch('/chat', {
@@ -330,8 +375,8 @@ form.addEventListener('submit', async (e) => {
 
     if (!resp.ok) {
       const err = await resp.json().catch(() => ({detail: '알 수 없는 오류'}));
-      pending.remove();
-      const errWrap = addTurn('assistant', err.detail || '요청 처리 중 오류가 발생했습니다.', 'blocked');
+      pendingWrap.remove();
+      addAssistantTurn(err.detail || '요청 처리 중 오류가 발생했습니다.', 'blocked');
       return;
     }
 
@@ -339,22 +384,16 @@ form.addEventListener('submit', async (e) => {
     sessionId = data.session_id;
     localStorage.setItem('dlp_demo_session_id', sessionId);
 
-    pending.remove();
-    const wrap = addTurn('assistant', data.reply, data.blocked ? 'blocked' : '');
+    pendingWrap.remove();
+    const { block } = addAssistantTurn(data.reply, data.blocked ? 'blocked' : '');
     if (data.input_action) {
-      addBadges(wrap, '입력', data.input_action, data.input_reason);
+      addBadges(block, '입력', data.input_action, data.input_reason);
     }
     if (data.output_action) {
-      addBadges(wrap, '응답', data.output_action, data.output_reason);
+      addBadges(block, '응답', data.output_action, data.output_reason);
     }
     if (!data.input_action && !data.output_action) {
-      const modeNote = document.createElement('div');
-      modeNote.className = 'badges';
-      const b = document.createElement('span');
-      b.className = `badge ${data.blocked ? 'block' : 'allow'}`;
-      b.textContent = `dlp-proxy 경유 · ${data.blocked ? '차단됨' : '통과'}`;
-      modeNote.appendChild(b);
-      wrap.appendChild(modeNote);
+      addModeNote(block, data.blocked);
     }
 
     if (!data.blocked) {
@@ -362,12 +401,17 @@ form.addEventListener('submit', async (e) => {
       history.push({role: 'assistant', content: data.reply});
     }
   } catch (err) {
-    pending.remove();
-    addTurn('assistant', '릴레이 서버에 연결할 수 없습니다.', 'blocked');
+    pendingWrap.remove();
+    addAssistantTurn('릴레이 서버에 연결할 수 없습니다.', 'blocked');
   } finally {
     sendBtn.disabled = false;
     msgInput.focus();
   }
+});
+
+msgInput.addEventListener('input', () => {
+  msgInput.style.height = 'auto';
+  msgInput.style.height = Math.min(msgInput.scrollHeight, 160) + 'px';
 });
 
 msgInput.addEventListener('keydown', (e) => {
