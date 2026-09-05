@@ -9,35 +9,14 @@ provider에 상관없이 그대로 쓸 수 있게 했다.
 import httpx
 
 from config import settings
+from gemini_format import extract_gemini_text, to_gemini_contents
+
+# 기존 테스트(tests/test_gemini_client.py)가 이 이름으로 직접 임포트하므로 별칭 유지.
+_to_gemini_contents = to_gemini_contents
 
 
 class GeminiError(RuntimeError):
     pass
-
-
-def _to_gemini_contents(messages: list[dict]) -> tuple[list[dict], str | None]:
-    """
-    OpenAI 스타일 messages([{role: user|assistant|system, content}])를
-    Gemini 스타일(contents: [{role: user|model, parts:[{text}]}])로 변환.
-    system 메시지는 system_instruction으로 분리한다 (Gemini는 system을
-    contents 안에 넣지 않는다).
-    """
-    contents = []
-    system_parts = []
-    for m in messages:
-        role = m.get("role")
-        text = m.get("content", "")
-        if role == "system":
-            system_parts.append(text)
-            continue
-        contents.append(
-            {
-                "role": "model" if role == "assistant" else "user",
-                "parts": [{"text": text}],
-            }
-        )
-    system_instruction = "\n".join(system_parts) if system_parts else None
-    return contents, system_instruction
 
 
 async def chat_completion(messages: list[dict]) -> str:
@@ -47,7 +26,7 @@ async def chat_completion(messages: list[dict]) -> str:
             "https://aistudio.google.com/apikey 에서 무료로 발급받을 수 있습니다."
         )
 
-    contents, system_instruction = _to_gemini_contents(messages)
+    contents, system_instruction = to_gemini_contents(messages)
     body: dict = {"contents": contents}
     if system_instruction:
         body["system_instruction"] = {"parts": [{"text": system_instruction}]}
@@ -64,13 +43,11 @@ async def chat_completion(messages: list[dict]) -> str:
                 },
                 json=body,
             )
-
     except httpx.TimeoutException as e:
         raise GeminiError(
             "Gemini API 응답이 30초 안에 오지 않았습니다. 사내 네트워크/방화벽이 "
             "generativelanguage.googleapis.com 접속을 막고 있는지 확인해주세요."
         ) from e
-
     except httpx.RequestError as e:
         raise GeminiError(f"Gemini API 연결 실패: {e}") from e
 
@@ -78,10 +55,8 @@ async def chat_completion(messages: list[dict]) -> str:
         raise GeminiError(f"Gemini 호출 실패 ({resp.status_code}): {resp.text[:300]}")
 
     data = resp.json()
-    try:
-        candidate = data["candidates"][0]
-        parts = candidate["content"]["parts"]
-        return "".join(p.get("text", "") for p in parts)
-    except (KeyError, IndexError) as e:
+    text = extract_gemini_text(data)
+    if not text:
         # 안전 필터에 걸려 candidates가 비었거나 finishReason만 오는 경우 등
-        raise GeminiError(f"Gemini 응답 파싱 실패: {data}") from e
+        raise GeminiError(f"Gemini 응답 파싱 실패: {data}")
+    return text

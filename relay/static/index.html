@@ -341,9 +341,20 @@ form.addEventListener('submit', async (e) => {
 
     pending.remove();
     const wrap = addTurn('assistant', data.reply, data.blocked ? 'blocked' : '');
-    addBadges(wrap, '입력', data.input_action, data.input_reason);
+    if (data.input_action) {
+      addBadges(wrap, '입력', data.input_action, data.input_reason);
+    }
     if (data.output_action) {
       addBadges(wrap, '응답', data.output_action, data.output_reason);
+    }
+    if (!data.input_action && !data.output_action) {
+      const modeNote = document.createElement('div');
+      modeNote.className = 'badges';
+      const b = document.createElement('span');
+      b.className = `badge ${data.blocked ? 'block' : 'allow'}`;
+      b.textContent = `dlp-proxy 경유 · ${data.blocked ? '차단됨' : '통과'}`;
+      modeNote.appendChild(b);
+      wrap.appendChild(modeNote);
     }
 
     if (!data.blocked) {
