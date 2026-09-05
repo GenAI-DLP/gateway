@@ -2,6 +2,11 @@ fastapi>=0.111
 uvicorn[standard]>=0.30
 grpcio>=1.64
 grpcio-tools>=1.64
+# gen_proto.sh가 재생성한 dlp_pb2.py의 gencode 버전보다 런타임이 낮으면
+# VersionError로 터진다 (관통 테스트 중 실제로 겪음). 재생성할 때마다
+# 이 하한을 그때의 protoc/grpc_tools 버전에 맞게 올려줄 것.
+protobuf>=5.29
+protobuf>=5.29
 httpx>=0.27
 pydantic>=2.7
 python-dotenv>=1.0
