@@ -47,3 +47,33 @@ def extract_gemini_text(data: dict) -> str:
         return "".join(p.get("text", "") for p in parts)
     except (KeyError, IndexError, TypeError):
         return ""
+
+
+def friendly_gemini_error(status: int, raw_body: bytes) -> str:
+    """Gemini API 에러 응답(HTTP status + 바디)을 사용자에게 보여줄 메시지로 변환한다.
+
+    direct 모드(gemini_client.py)와 dlp_proxy 모드(proxied_client.py) 양쪽이
+    같은 방식으로 에러를 보여주도록 여기서 공유한다.
+    """
+    message = ""
+    try:
+        data = json.loads(raw_body)
+        if isinstance(data, dict):
+            message = data.get("error", {}).get("message", "")
+    except (json.JSONDecodeError, AttributeError, TypeError):
+        pass
+
+    if status == 429:
+        return (
+            "Gemini 무료 티어 사용량 한도를 초과했습니다. 잠시 후 다시 시도하거나, "
+            "https://aistudio.google.com/apikey 에서 사용량/요금제를 확인해주세요."
+        )
+    if status == 503:
+        return "Gemini 서버가 일시적으로 과부하 상태입니다. 잠시 후 다시 시도해주세요."
+    if status == 400:
+        return f"요청 형식 오류: {message or '잘못된 요청입니다.'}"
+    if status == 403:
+        return f"권한 오류: {message or 'API 키 권한을 확인해주세요.'}"
+
+    fallback = message or raw_body.decode("utf-8", errors="replace")[:200]
+    return f"Gemini 호출 실패 ({status}): {fallback}"
