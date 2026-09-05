@@ -26,10 +26,19 @@ class Settings:
     # dlp-server 장애(타임아웃/연결 실패) 시 정책 — 문서 §2.4 fail-closed가 기본.
     fail_closed: bool = os.getenv("FAIL_CLOSED", "true").lower() != "false"
 
-    # openai_api_key: str = os.getenv("OPENAI_API_KEY", "")
-    # openai_model: str = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
-    # openai_base_url: str = os.getenv("OPENAI_BASE_URL", "https://api.openai.com/v1")
-    # "openai" | "gemini" — 실제 LLM 호출 대상 선택
+    # "direct" (Relay가 dlp-server/LLM에 직접 호출, 기존 방식)
+    # "dlp_proxy" (Relay는 헤더만 주입, dlp-proxy가 Inspect+중계까지 전부 처리)
+    transport_mode: str = os.getenv("TRANSPORT_MODE", "direct")
+
+    dlp_proxy_host: str = os.getenv("DLP_PROXY_HOST", "localhost")
+    dlp_proxy_port: int = int(os.getenv("DLP_PROXY_PORT", "8443"))
+    # dlp-proxy-server의 certs/ca.pem 절대경로. dlp_proxy 모드에서 필수.
+    dlp_proxy_ca_cert: str = os.getenv("DLP_PROXY_CA_CERT", "")
+    gemini_upstream_host: str = os.getenv(
+        "GEMINI_UPSTREAM_HOST", "generativelanguage.googleapis.com"
+    )
+
+    # "openai" | "gemini" — 실제 LLM 호출 대상 선택 (direct 모드에서만 의미 있음)
     llm_provider: str = os.getenv("LLM_PROVIDER", "gemini")
 
     openai_api_key: str = os.getenv("OPENAI_API_KEY", "")
