@@ -6,6 +6,8 @@
 <title>DLP Gateway · Demo 1</title>
 <link rel="stylesheet" as="style" crossorigin
   href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.5/purify.min.js"></script>
 <style>
   :root{
     --bg: #ffffff;
@@ -107,9 +109,9 @@
 
   .bubble{
     font-size:15px;
-    white-space:pre-wrap;
     word-break:break-word;
   }
+  .bubble.plain{ white-space:pre-wrap; }
   .turn.user .bubble{
     background:var(--user-bubble);
     border-radius:20px;
@@ -128,6 +130,64 @@
   }
   .turn.pending .bubble{
     color:var(--text-muted);
+  }
+
+  /* Gemini 응답의 마크다운(##, **, 목록, 코드블록 등) 렌더링 */
+  .bubble.markdown > *:first-child{ margin-top:0; }
+  .bubble.markdown > *:last-child{ margin-bottom:0; }
+  .bubble.markdown p{ margin:0 0 12px; }
+  .bubble.markdown h1, .bubble.markdown h2, .bubble.markdown h3,
+  .bubble.markdown h4, .bubble.markdown h5, .bubble.markdown h6{
+    font-size:1.05em;
+    font-weight:600;
+    line-height:1.4;
+    margin:20px 0 8px;
+  }
+  .bubble.markdown strong{ font-weight:600; }
+  .bubble.markdown em{ font-style:italic; }
+  .bubble.markdown ul, .bubble.markdown ol{
+    margin:0 0 12px;
+    padding-left:22px;
+  }
+  .bubble.markdown li{ margin:4px 0; }
+  .bubble.markdown li > ul, .bubble.markdown li > ol{ margin:4px 0 0; }
+  .bubble.markdown code{
+    background:var(--bg-input);
+    padding:2px 5px;
+    border-radius:5px;
+    font-family:'SF Mono', Menlo, monospace;
+    font-size:0.9em;
+  }
+  .bubble.markdown pre{
+    background:var(--bg-input);
+    padding:12px 14px;
+    border-radius:10px;
+    overflow-x:auto;
+    margin:0 0 12px;
+  }
+  .bubble.markdown pre code{ background:none; padding:0; }
+  .bubble.markdown blockquote{
+    border-left:3px solid var(--border);
+    margin:0 0 12px;
+    padding-left:12px;
+    color:var(--text-muted);
+  }
+  .bubble.markdown hr{
+    border:none;
+    border-top:1px solid var(--border);
+    margin:16px 0;
+  }
+  .bubble.markdown a{ color:var(--accent); }
+  .bubble.markdown table{
+    border-collapse:collapse;
+    margin:0 0 12px;
+    width:100%;
+    font-size:0.95em;
+  }
+  .bubble.markdown th, .bubble.markdown td{
+    border:1px solid var(--border);
+    padding:6px 10px;
+    text-align:left;
   }
 
   .assistant-block{
@@ -289,11 +349,36 @@ function actionLabel(action) {
   return action || '?';
 }
 
+function preprocessForMarkdown(text) {
+  // '<...>' 형태(우리 PII 토큰 라벨 <PII:TYPE:N> 포함)가 HTML 태그나
+  // 자동링크로 오인되지 않도록 각도 괄호를 엔티티로 이스케이프한다.
+  // (부작용: 모델이 진짜 <https://...> 형태 autolink를 썼어도 클릭 가능한
+  // 링크로는 안 뜨고 문자 그대로 보인다 — 이 앱 성격상 감수할 만한 트레이드오프)
+  let safe = text.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+  // 마스킹 문자열(***-****-5678, 3****성 등)의 별표 연속이 markdown 강조
+  // 문법(**굵게**)으로 오인되지 않도록, 숫자/하이픈에 바로 붙은 별표
+  // 연속만 이스케이프한다. 문자를 감싸는 진짜 **강조**는 그대로 둔다.
+  safe = safe.replace(/\*{2,}/g, (match, offset, str) => {
+    const before = str[offset - 1] || '';
+    const after = str[offset + match.length] || '';
+    const looksLikeMask = /[\d-]/.test(before) || /[\d-]/.test(after);
+    return looksLikeMask ? match.replace(/\*/g, '\\*') : match;
+  });
+
+  return safe;
+}
+
+function renderMarkdown(text) {
+  const html = marked.parse(preprocessForMarkdown(text), { breaks: true });
+  return DOMPurify.sanitize(html);
+}
+
 function addUserTurn(text) {
   const wrap = document.createElement('div');
   wrap.className = 'turn user';
   const bubble = document.createElement('div');
-  bubble.className = 'bubble';
+  bubble.className = 'bubble plain';
   bubble.textContent = text;
   wrap.appendChild(bubble);
   logInner.appendChild(wrap);
@@ -301,14 +386,19 @@ function addUserTurn(text) {
   return wrap;
 }
 
-function addAssistantTurn(text, extraClass) {
+function addAssistantTurn(text, extraClass, opts = {}) {
   const wrap = document.createElement('div');
   wrap.className = `turn assistant${extraClass ? ' ' + extraClass : ''}`;
   const block = document.createElement('div');
   block.className = 'assistant-block';
   const bubble = document.createElement('div');
-  bubble.className = 'bubble';
-  bubble.textContent = text;
+  if (opts.markdown) {
+    bubble.className = 'bubble markdown';
+    bubble.innerHTML = renderMarkdown(text);
+  } else {
+    bubble.className = 'bubble plain';
+    bubble.textContent = text;
+  }
   block.appendChild(bubble);
   wrap.appendChild(block);
   logInner.appendChild(wrap);
@@ -385,7 +475,7 @@ form.addEventListener('submit', async (e) => {
     localStorage.setItem('dlp_demo_session_id', sessionId);
 
     pendingWrap.remove();
-    const { block } = addAssistantTurn(data.reply, data.blocked ? 'blocked' : '');
+    const { block } = addAssistantTurn(data.reply, data.blocked ? 'blocked' : '', { markdown: !data.blocked });
     if (data.input_action) {
       addBadges(block, '입력', data.input_action, data.input_reason);
     }
