@@ -3,25 +3,28 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>DLP Gateway · Demo 1</title>
+<title>DLP Gateway</title>
 <link rel="stylesheet" as="style" crossorigin
   href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.css" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.5/purify.min.js"></script>
 <style>
   :root{
-    --bg: #ffffff;
-    --bg-input: #f7f7f8;
-    --text: #0d0d0d;
-    --text-muted: #6e6e80;
-    --border: #e6e6e6;
-    --user-bubble: #f0f0f1;
-    --accent: #3c6e71;
-    --accent-soft: #e4edec;
-    --amber: #a9660e;
-    --amber-soft: #f7ecda;
-    --brick: #b3403f;
-    --brick-soft: #fbebea;
+    --bg: #ffffff;              /* --color-surface */
+    --bg-input: #f2f4f6;        /* --color-surface-muted */
+    --text: #191f28;            /* --color-strong */
+    --text-muted: #8b95a1;      /* --color-muted */
+    --border: #e5e8eb;          /* --color-border */
+    --user-bubble: #f2f4f6;     /* --color-surface-muted */
+    --accent: #3182f6;          /* --color-primary */
+    --accent-hover: #1b64da;    /* --color-primary-hover */
+    --accent-soft: #e8f3ff;     /* --color-primary-bg */
+    --green: #0fa98f;           /* --color-allow-text */
+    --green-soft: #e7f8f4;      /* --color-allow-bg */
+    --amber: #c57d00;           /* --color-transform-text */
+    --amber-soft: #fff4e0;      /* --color-transform-bg */
+    --brick: #e02b3a;           /* --color-block-text */
+    --brick-soft: #feecee;      /* --color-block-bg */
   }
   *{box-sizing:border-box;}
   html,body{height:100%;}
@@ -30,7 +33,7 @@
     background:var(--bg);
     color:var(--text);
     font-family:'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, sans-serif;
-    font-size:15px;
+    font-size:18px;
     line-height:1.65;
     display:flex;
     flex-direction:column;
@@ -48,37 +51,83 @@
   }
   .brand{
     display:flex;
-    align-items:baseline;
+    align-items:center;
     gap:9px;
+  }
+  .brand .logo-mark{
+    width:24px;
+    height:24px;
+    flex-shrink:0;
+    background:var(--accent);
+    color:#fff;
+    border-radius:8px;
+    font-weight:700;
+    font-size:13px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    letter-spacing:0;
   }
   .brand .mark{
     font-weight:600;
-    font-size:15px;
+    font-size:18px;
     letter-spacing:-0.01em;
+    color:var(--text);
+  }
+  .brand .mark .brand-dlp{
+    font-weight:800;
   }
   .brand .sub{
     color:var(--text-muted);
-    font-size:12.5px;
+    font-size:16px;
+    font-weight:500;
+  }
+  .sr-only{
+    position:absolute;
+    width:1px; height:1px;
+    padding:0; margin:-1px;
+    overflow:hidden;
+    clip:rect(0,0,0,0);
+    white-space:nowrap;
+    border:0;
   }
   .identity{
     display:flex;
     align-items:center;
-    gap:8px;
-    font-size:13px;
+    gap:6px;
+    background:var(--bg-input);
+    border-radius:100px;
+    padding:4px 14px 4px 4px;
   }
-  .identity label{
+  .identity .avatar{
+    width:26px;
+    height:26px;
+    border-radius:50%;
+    background:var(--accent-soft);
+    color:var(--accent);
+    font-size:11px;
+    font-weight:700;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-shrink:0;
+    text-transform:uppercase;
+  }
+  .identity-sep{
     color:var(--text-muted);
+    font-size:12px;
   }
   .identity input, .identity select{
-    background:var(--bg-input);
-    border:1px solid var(--border);
+    background:transparent;
+    border:none;
     color:var(--text);
-    border-radius:8px;
-    padding:6px 10px;
+    padding:2px;
     font-size:13px;
+    font-weight:500;
     font-family:inherit;
+    outline:none;
   }
-  .identity input{width:88px;}
+  .identity input{width:76px;}
 
   main{
     flex:1;
@@ -207,12 +256,11 @@
     font-weight:500;
     padding:3px 9px;
     border-radius:100px;
-    border:1px solid transparent;
     cursor:default;
   }
-  .badge.allow{ background:var(--accent-soft); color:var(--accent); border-color:#c9dbd9;}
-  .badge.transform{ background:var(--amber-soft); color:var(--amber); border-color:#ecd9b3;}
-  .badge.block{ background:var(--brick-soft); color:var(--brick); border-color:#f0c9c8;}
+  .badge.allow{ background:var(--green-soft); color:var(--green); }
+  .badge.transform{ background:var(--amber-soft); color:var(--amber); }
+  .badge.block{ background:var(--brick-soft); color:var(--brick); }
 
   details.reason{
     font-size:12px;
@@ -287,20 +335,23 @@
     font-weight:700;
   }
   #send:disabled{opacity:0.35; cursor:default;}
-  #send:hover:not(:disabled){background:#2f5a5c;}
+  #send:hover:not(:disabled){background:var(--accent-hover);}
 </style>
 </head>
 <body>
 
 <header>
   <div class="brand">
+    <span class="logo-mark">D</span>
     <span class="mark">DLP Gateway</span>
-    <span class="sub">Demo 1 · 사내 포털 경로</span>
+    <span class="sub">사내 포털 경로</span>
   </div>
   <div class="identity">
-    <label for="userId">사번</label>
+    <span class="avatar" id="avatar">E1</span>
+    <label for="userId" class="sr-only">사번</label>
     <input id="userId" value="E10234" />
-    <label for="role">역할</label>
+    <span class="identity-sep">·</span>
+    <label for="role" class="sr-only">역할</label>
     <select id="role">
       <option value="agent_l1">1선 상담원</option>
       <option value="agent_l2">2선 조사역</option>
@@ -333,6 +384,14 @@ const msgInput = document.getElementById('msg');
 const sendBtn = document.getElementById('send');
 const userIdInput = document.getElementById('userId');
 const roleSelect = document.getElementById('role');
+const avatarEl = document.getElementById('avatar');
+
+function updateAvatar() {
+  const val = (userIdInput.value || '').trim();
+  avatarEl.textContent = val ? val.slice(0, 2).toUpperCase() : '?';
+}
+userIdInput.addEventListener('input', updateAvatar);
+updateAvatar();
 
 let sessionId = localStorage.getItem('dlp_demo_session_id');
 if (!sessionId) {
